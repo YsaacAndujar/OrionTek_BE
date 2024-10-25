@@ -49,7 +49,7 @@ namespace OrionTek.Controllers
             return Ok();
         }
 
-        [HttpPost("ChangePassword")]
+        [HttpPut("ChangePassword")]
         public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
         {
             await authenticationRepository.ChangePassword(dto);

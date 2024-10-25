@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Logic.Dtos.Users;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,5 +12,7 @@ namespace Logic.Dtos
         public int Id { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime ModifiedAt { get; set; }
+        public UserDto CreatedBy { get; set; }
+        public UserDto UpdatedBy { get; set; }
     }
 }

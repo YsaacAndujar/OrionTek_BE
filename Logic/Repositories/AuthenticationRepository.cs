@@ -153,7 +153,7 @@ namespace Logic.Repositories
             });
             await dbContext.SaveChangesAsync();
             var frontUrl = configuration["FrontEndUrl"];
-            var redirectUrl = $"{frontUrl}change-password?userid={user.Id}&code={code}";
+            var redirectUrl = $"{frontUrl}recover-password?userid={user.Id}&code={code}";
             await emailSender.SendEmail(
                 toEmail: user.Email,
                 toName: user.Email,
