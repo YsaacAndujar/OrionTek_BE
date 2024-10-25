@@ -44,8 +44,8 @@ namespace Logic.Repositories
         }
         public async Task ChangePassword(ChangePasswordDto dto)
         {
-            string userEmail = GetUserEmail();
-            var user = await dbContext.Users.Where(u => u.Email == userEmail).FirstOrDefaultAsync();
+            var id = GetUserId();
+            var user = await dbContext.Users.FindAsync(id);
             user.Password = HashEncryption.ComputeSHA256Hash(dto.Password);
             var codes = await dbContext.PasswordRecoveryCodes
                 .Where(prc => prc.UserId == user.Id && prc.Expires > DateTime.Now).ToListAsync();
@@ -56,13 +56,11 @@ namespace Logic.Repositories
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task<User> GetUserFromEmail(string email)
+        public async Task<User> GetUser(int? id)
         {
-            if (string.IsNullOrEmpty(email)) return null;
+            if (id == null) return null;
             return await dbContext.Users
-                .Where(u =>
-                    u.Email == email)
-                .FirstOrDefaultAsync();
+                .FindAsync(id);
         }
 
         public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
@@ -99,11 +97,11 @@ namespace Logic.Repositories
         }
         public async Task<UserDto> Me()
         {
-            var userEmail = GetUserEmail();
-            var user = await dbContext.Users.Where(u => u.Email == userEmail).FirstOrDefaultAsync();
+            var id = GetUserId();
+            var user = await dbContext.Users.FindAsync(id);
             return mapper.Map<UserDto>(user);
         }
-        private string GetUserEmail()
+        private int? GetUserId()
         {
             var token = httpContext.Request.Headers["Authorization"].ToString();
             if (token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
@@ -111,16 +109,17 @@ namespace Logic.Repositories
                 token = token.Substring("Bearer ".Length).Trim();
             }
             var tokenHandler = new JwtSecurityTokenHandler();
-            string userEmail = null;
+            int? userId = null;
+            
             try
             {
-                userEmail = (tokenHandler.ReadToken(token) as JwtSecurityToken)?.Claims.FirstOrDefault(claim => claim.Type == "email")?.Value;
+                userId = int.Parse((tokenHandler.ReadToken(token) as JwtSecurityToken)?.Claims.FirstOrDefault(claim => claim.Type == "id")?.Value);
             }
             catch
             {
 
             }
-            return userEmail;
+            return userId;
         }
         public async Task PasswordRecovery(PasswordRecoveryDto passwordRecoveryDto)
         {
@@ -177,13 +176,22 @@ namespace Logic.Repositories
         private async Task ValidateUserCreateUpdateDto(UserCreateUpdateAbstractDto userCreateUpdateDto, int idUpdate = 0)
         {
             if (await dbContext.Users.Where(u =>
-                u.Email == userCreateUpdateDto.Email &&
-                idUpdate == 0 ||
-                u.Email == userCreateUpdateDto.Email &&
-                u.Id != idUpdate).AnyAsync())
+                (u.Email == userCreateUpdateDto.Email &&
+                idUpdate == 0) ||
+                (u.Email == userCreateUpdateDto.Email &&
+                u.Id != idUpdate)).AnyAsync())
             {
                 throw new CustomException(400, "Email already in use.");
             }
+        }
+
+        public async Task UpdateMe(UserUpdateDto dto)
+        {
+            var id = GetUserId();
+            var user = await dbContext.Users.FindAsync(id);
+            await ValidateUserCreateUpdateDto(dto, user.Id);
+            mapper.Map(dto, user);
+            await dbContext.SaveChangesAsync();
         }
     }
 }

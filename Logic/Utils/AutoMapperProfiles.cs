@@ -9,6 +9,7 @@ namespace Logic.Utils
     {
         public AutoMapperProfiles() {
             CreateMap<User, UserDto>();
+            CreateMap<UserUpdateDto, User>();
             CreateMap<UserCreateDto, User>();
 
             CreateMap<Client, ClientDto>()

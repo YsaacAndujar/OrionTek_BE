@@ -12,7 +12,8 @@ namespace Logic.Interfaces
         Task RequestPasswordRecovery(RequestPasswordRecoveryDto requestPasswordRecoveryDto);
         Task ChangePassword(ChangePasswordDto dto);
         Task PasswordRecovery(PasswordRecoveryDto passwordRecoveryDto);
-        Task<User> GetUserFromEmail(string email);
+        Task<User> GetUser(int? id);
         Task<UserDto> Me();
+        Task UpdateMe(UserUpdateDto dto);
     }
 }

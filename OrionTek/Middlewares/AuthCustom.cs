@@ -54,10 +54,10 @@ namespace OrionTek.Middlewares
                 context.Result = new UnauthorizedResult();
                 return;
             }
-            var userEmail = (tokenHandler.ReadToken(token) as JwtSecurityToken)?.Claims.FirstOrDefault(claim => claim.Type == "email")?.Value;
+            var id = int.Parse((tokenHandler.ReadToken(token) as JwtSecurityToken)?.Claims.FirstOrDefault(claim => claim.Type == "id")?.Value);
             var repository = context.HttpContext.RequestServices
             .GetRequiredService<IAuthenticationRepository>();
-            var user = await repository.GetUserFromEmail(userEmail);
+            var user = await repository.GetUser(id);
             if (user == null)
             {
                 context.Result = new StatusCodeResult(401);
