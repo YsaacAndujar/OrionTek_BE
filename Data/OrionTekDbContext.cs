@@ -15,6 +15,18 @@ namespace Data
 
         }
         public DbSet<Client> Clients { get; set; }
+        public DbSet<Direction> Directions { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+
+            modelBuilder.Entity<Direction>()
+                .HasOne(direction => direction.Client)
+                .WithMany(client => client.Directions)
+                .HasForeignKey(direction => direction.ClientId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

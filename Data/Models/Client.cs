@@ -9,5 +9,6 @@ namespace Data.Models
     public class Client : GenericEntity
     {
         public string Name { get; set; }
+        public List<Direction> Directions { get; set; }
     }
 }
