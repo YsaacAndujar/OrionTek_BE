@@ -17,6 +17,7 @@ namespace Data.Models
         public string Password { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime ModifiedAt { get; set; } = DateTime.Now;
+        public List<PasswordRecoveryCode> PasswordRecoveryCodes { get; set; }
 
     }
 }
