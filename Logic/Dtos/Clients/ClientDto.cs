@@ -9,6 +9,6 @@ namespace Logic.Dtos.Clients
     public class ClientDto: GenericDto
     {
         public string Name { get; set; }
-        public string[] Directions { get; set; }
+        public List<string> Directions { get; set; }
     }
 }

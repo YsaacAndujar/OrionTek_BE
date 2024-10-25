@@ -102,8 +102,8 @@ namespace OrionTek
                         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                         context.Response.ContentType = "application/json";
 
-                        var innerExMessage = ex.InnerException?.Message;
-                        var innerExSource = ex.InnerException?.Source;
+                        var innerExMessage = ex?.InnerException?.Message;
+                        var innerExSource = ex?.InnerException?.Source;
 
                         var errorResponse = new { message = ex.Message, inner_exception = innerExMessage, source = innerExSource };
                         await context.Response.WriteAsync(JsonConvert.SerializeObject(errorResponse));
