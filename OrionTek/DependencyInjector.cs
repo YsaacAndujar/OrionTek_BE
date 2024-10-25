@@ -10,6 +10,7 @@ namespace OrionTek
         {
             services.AddAutoMapper(Assembly.GetExecutingAssembly(), typeof(Logic.Utils.AutoMapperProfiles).Assembly);
             services.AddScoped<IClientRepository, ClientRepository>();
+            services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
         }
     }
 }

@@ -9,6 +9,7 @@ namespace Logic.Utils
     {
         public AutoMapperProfiles() {
             CreateMap<User, UserDto>();
+            CreateMap<UserCreateDto, User>();
 
             CreateMap<Client, ClientDto>()
                 .ForMember(dto => dto.Directions, opt => opt.MapFrom(MapClientDirectionToClientDto));

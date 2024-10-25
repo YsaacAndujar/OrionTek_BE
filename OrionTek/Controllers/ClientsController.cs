@@ -2,11 +2,13 @@
 using Logic.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using OrionTek.Middlewares;
 
 namespace OrionTek.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AuthCustom]
     public class ClientsController : ControllerBase
     {
         private readonly IClientRepository clientRepository;
