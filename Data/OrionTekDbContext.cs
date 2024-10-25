@@ -16,6 +16,7 @@ namespace Data
         }
         public DbSet<Client> Clients { get; set; }
         public DbSet<Direction> Directions { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
