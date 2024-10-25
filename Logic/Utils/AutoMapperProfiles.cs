@@ -19,7 +19,7 @@ namespace Logic.Utils
             {
                 result.Add(new Direction() { Name = direction });
             });
-            return result
+            return result;
         }
     }
 }
