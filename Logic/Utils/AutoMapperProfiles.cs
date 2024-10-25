@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
 using Data.Models;
 using Logic.Dtos.Clients;
+using Logic.Dtos.Users;
 
 namespace Logic.Utils
 {
     public class AutoMapperProfiles : Profile
     {
         public AutoMapperProfiles() {
+            CreateMap<User, UserDto>();
+
             CreateMap<Client, ClientDto>()
                 .ForMember(dto => dto.Directions, opt => opt.MapFrom(MapClientDirectionToClientDto));
 

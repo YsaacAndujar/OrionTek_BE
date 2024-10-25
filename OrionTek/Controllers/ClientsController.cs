@@ -7,11 +7,11 @@ namespace OrionTek.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class Clients : ControllerBase
+    public class ClientsController : ControllerBase
     {
         private readonly IClientRepository clientRepository;
 
-        public Clients(IClientRepository _clientRepository)
+        public ClientsController(IClientRepository _clientRepository)
         {
             clientRepository = _clientRepository;
         }
