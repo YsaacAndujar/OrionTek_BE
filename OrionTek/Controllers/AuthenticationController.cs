@@ -57,6 +57,7 @@ namespace OrionTek.Controllers
             return Ok();
         }
 
+        [AllowAnonymous]
         [HttpPut("PasswordRecovery")]
         public async Task<ActionResult> PasswordRecovery([FromBody] PasswordRecoveryDto passwordRecovery)
         {

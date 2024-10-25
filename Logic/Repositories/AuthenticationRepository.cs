@@ -25,22 +25,35 @@ namespace Logic.Repositories
         private readonly IMapper mapper;
         private readonly IConfiguration configuration;
         private HttpContext httpContext;
+        private readonly IEmailSender emailSender;
 
         public AuthenticationRepository(
             OrionTekDbContext _dbContext,
             IConfiguration _configuration,
             IMapper _mapper,
-            IHttpContextAccessor _httpContextAccessor
+            IHttpContextAccessor _httpContextAccessor,
+            IEmailSender _emailSender
+
             )
         {
             mapper = _mapper;
             httpContext = _httpContextAccessor.HttpContext;
             configuration = _configuration;
+            emailSender = _emailSender;
             dbContext = _dbContext;
         }
         public async Task ChangePassword(ChangePasswordDto dto)
         {
-            throw new NotImplementedException();
+            string userEmail = GetUserEmail();
+            var user = await dbContext.Users.Where(u => u.Email == userEmail).FirstOrDefaultAsync();
+            user.Password = HashEncryption.ComputeSHA256Hash(dto.Password);
+            var codes = await dbContext.PasswordRecoveryCodes
+                .Where(prc => prc.UserId == user.Id && prc.Expires > DateTime.Now).ToListAsync();
+            foreach (var code in codes)
+            {
+                code.Expires = DateTime.Now;
+            }
+            await dbContext.SaveChangesAsync();
         }
 
         public async Task<User> GetUserFromEmail(string email)
@@ -111,12 +124,45 @@ namespace Logic.Repositories
         }
         public async Task PasswordRecovery(PasswordRecoveryDto passwordRecoveryDto)
         {
-            throw new NotImplementedException();
+            var recoveryCode = await dbContext.PasswordRecoveryCodes.Where(prc =>
+                prc.UserId == passwordRecoveryDto.UserId &&
+                prc.Code == passwordRecoveryDto.Code
+            ).FirstOrDefaultAsync();
+            if (recoveryCode == null)
+            {
+                throw new CustomException(400, "Invalid user or code.");
+            }
+            if (DateTime.Now > recoveryCode.Expires)
+            {
+                throw new CustomException(400, "The code has expired.");
+            }
+            var user = await dbContext.Users.FindAsync(passwordRecoveryDto.UserId);
+            user.Password = HashEncryption.ComputeSHA256Hash(passwordRecoveryDto.Password);
+            recoveryCode.Expires = DateTime.Now;
+            await dbContext.SaveChangesAsync();
         }
 
         public async Task RequestPasswordRecovery(RequestPasswordRecoveryDto requestPasswordRecoveryDto)
         {
-            throw new NotImplementedException();
+            var user = await dbContext.Users.Where(u => u.Email == requestPasswordRecoveryDto.Email).FirstOrDefaultAsync();
+            if (user == null) return;
+            var code = RandomCodeGenerator.GenerateRandomCode();
+            await dbContext.AddAsync(new PasswordRecoveryCode()
+            {
+                UserId = user.Id,
+                Code = code
+            });
+            await dbContext.SaveChangesAsync();
+            var frontUrl = configuration["FrontEndUrl"];
+            var redirectUrl = $"{frontUrl}change-password?userid={user.Id}&code={code}";
+            await emailSender.SendEmail(
+                toEmail: user.Email,
+                toName: user.Email,
+                subject: "Password Recovery",
+                htmlContent: @$"You requested a password recovery. To change your password <a href='{redirectUrl}' target='_blank'>Click Here</a>
+<br/>If the button doesn't work coy this link: {redirectUrl}",
+                plainTextContent: @$"You requested a password recovery. To change your password use the next link: {redirectUrl}"
+                );
         }
 
         public async Task<LoginResponseDto> Signin(UserCreateDto dto)
